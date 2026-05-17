@@ -6,14 +6,108 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3A11508D2FB9F36C00A289D9 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11506C2FB9F36C00A289D9 /* AppCoordinator.swift */; };
+		3A11508E2FB9F36C00A289D9 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11507A2FB9F36C00A289D9 /* SettingsStore.swift */; };
+		3A1150B02FBA100000A289D9 /* RecordingHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150B12FBA100000A289D9 /* RecordingHistoryStore.swift */; };
+		3A1150902FB9F36C00A289D9 /* RecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150772FB9F36C00A289D9 /* RecordingService.swift */; };
+		3A1150922FB9F36C00A289D9 /* TrialManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11507B2FB9F36C00A289D9 /* TrialManager.swift */; };
+		3A1150932FB9F36C00A289D9 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150832FB9F36C00A289D9 /* PaywallView.swift */; };
+		3A1150942FB9F36C00A289D9 /* PurchaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150762FB9F36C00A289D9 /* PurchaseService.swift */; };
+		3A1150952FB9F36C00A289D9 /* HapticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150732FB9F36C00A289D9 /* HapticService.swift */; };
+		3A1150962FB9F36C00A289D9 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11507E2FB9F36C00A289D9 /* OnboardingViewModel.swift */; };
+		3A1150972FB9F36C00A289D9 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11507D2FB9F36C00A289D9 /* OnboardingView.swift */; };
+		3A1150982FB9F36C00A289D9 /* ClipBufferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150722FB9F36C00A289D9 /* ClipBufferService.swift */; };
+		3A1150992FB9F36C00A289D9 /* TempFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11508A2FB9F36C00A289D9 /* TempFileManager.swift */; };
+		3A11509A2FB9F36C00A289D9 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150742FB9F36C00A289D9 /* PermissionManager.swift */; };
+		3A11509B2FB9F36C00A289D9 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150892FB9F36C00A289D9 /* Errors.swift */; };
+		3A11509C2FB9F36C00A289D9 /* FlashCatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11506E2FB9F36C00A289D9 /* FlashCatchApp.swift */; };
+		3A11509D2FB9F36C00A289D9 /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150752FB9F36C00A289D9 /* PhotoLibraryService.swift */; };
+		3A11509F2FB9F36C00A289D9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11506D2FB9F36C00A289D9 /* ContentView.swift */; };
+		3A1150A02FB9F36C00A289D9 /* VideoExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150782FB9F36C00A289D9 /* VideoExportService.swift */; };
+		3A1150A52FB9F55B00A289D9 /* Products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 3A1150A42FB9F55B00A289D9 /* Products.storekit */; };
+		3AA447322FBA04100055CD82 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AA447312FBA04100055CD82 /* ReplayKit.framework */; };
+		3AA447482FBA04100055CD82 /* FlashCatchBroadcast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3AA4472F2FBA04100055CD82 /* FlashCatchBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3AA447462FBA04100055CD82 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3A1150202FB9F2D000A289D9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3AA4472E2FBA04100055CD82;
+			remoteInfo = FlashCatchBroadcast;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3AA447492FBA04100055CD82 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				3AA447482FBA04100055CD82 /* FlashCatchBroadcast.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		3A1150282FB9F2D000A289D9 /* FlashCatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlashCatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A11506C2FB9F36C00A289D9 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		3A11506D2FB9F36C00A289D9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		3A11506E2FB9F36C00A289D9 /* FlashCatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashCatchApp.swift; sourceTree = "<group>"; };
+		3A1150702FB9F36C00A289D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3A1150722FB9F36C00A289D9 /* ClipBufferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipBufferService.swift; sourceTree = "<group>"; };
+		3A1150732FB9F36C00A289D9 /* HapticService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticService.swift; sourceTree = "<group>"; };
+		3A1150742FB9F36C00A289D9 /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
+		3A1150752FB9F36C00A289D9 /* PhotoLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryService.swift; sourceTree = "<group>"; };
+		3A1150762FB9F36C00A289D9 /* PurchaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseService.swift; sourceTree = "<group>"; };
+		3A1150772FB9F36C00A289D9 /* RecordingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingService.swift; sourceTree = "<group>"; };
+		3A1150782FB9F36C00A289D9 /* VideoExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoExportService.swift; sourceTree = "<group>"; };
+		3A11507A2FB9F36C00A289D9 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		3A11507B2FB9F36C00A289D9 /* TrialManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrialManager.swift; sourceTree = "<group>"; };
+		3A1150B12FBA100000A289D9 /* RecordingHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingHistoryStore.swift; sourceTree = "<group>"; };
+		3A11507D2FB9F36C00A289D9 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		3A11507E2FB9F36C00A289D9 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
+		3A1150832FB9F36C00A289D9 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		3A1150892FB9F36C00A289D9 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
+		3A11508A2FB9F36C00A289D9 /* TempFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempFileManager.swift; sourceTree = "<group>"; };
+		3A1150A42FB9F55B00A289D9 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
+		3AA4472F2FBA04100055CD82 /* FlashCatchBroadcast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FlashCatchBroadcast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AA447312FBA04100055CD82 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
+		3AA4473D2FBA04100055CD82 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3AA4474E2FBA04100055CD82 /* Exceptions for "FlashCatchBroadcast" folder in "FlashCatchBroadcast" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3AA4472E2FBA04100055CD82 /* FlashCatchBroadcast */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3A11502A2FB9F2D000A289D9 /* FlashCatch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FlashCatch;
+			sourceTree = "<group>";
+		};
+		3AA447332FBA04100055CD82 /* FlashCatchBroadcast */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3AA4474E2FBA04100055CD82 /* Exceptions for "FlashCatchBroadcast" folder in "FlashCatchBroadcast" target */,
+			);
+			path = FlashCatchBroadcast;
+			sourceTree = "<group>";
+		};
+		3AA4473F2FBA04100055CD82 /* FlashCatchBroadcastSetupUI */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FlashCatchBroadcastSetupUI;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,14 +120,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3AA4472C2FBA04100055CD82 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3AA447322FBA04100055CD82 /* ReplayKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		3A11501F2FB9F2D000A289D9 = {
 			isa = PBXGroup;
 			children = (
+				3A1150A42FB9F55B00A289D9 /* Products.storekit */,
 				3A11502A2FB9F2D000A289D9 /* FlashCatch */,
+				3AA447332FBA04100055CD82 /* FlashCatchBroadcast */,
+				3AA4473F2FBA04100055CD82 /* FlashCatchBroadcastSetupUI */,
+				3AA447302FBA04100055CD82 /* Frameworks */,
 				3A1150292FB9F2D000A289D9 /* Products */,
+				3A11506F2FB9F36C00A289D9 /* App */,
+				3A1150712FB9F36C00A289D9 /* Resources */,
+				3A1150792FB9F36C00A289D9 /* Services */,
+				3A11507C2FB9F36C00A289D9 /* Store */,
+				3A1150882FB9F36C00A289D9 /* UI */,
+				3A11508B2FB9F36C00A289D9 /* Utils */,
 			);
 			sourceTree = "<group>";
 		};
@@ -41,8 +153,95 @@
 			isa = PBXGroup;
 			children = (
 				3A1150282FB9F2D000A289D9 /* FlashCatch.app */,
+				3AA4472F2FBA04100055CD82 /* FlashCatchBroadcast.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		3A11506F2FB9F36C00A289D9 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3A11506C2FB9F36C00A289D9 /* AppCoordinator.swift */,
+				3A11506D2FB9F36C00A289D9 /* ContentView.swift */,
+				3A11506E2FB9F36C00A289D9 /* FlashCatchApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		3A1150712FB9F36C00A289D9 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				3A1150702FB9F36C00A289D9 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		3A1150792FB9F36C00A289D9 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3A1150722FB9F36C00A289D9 /* ClipBufferService.swift */,
+				3A1150732FB9F36C00A289D9 /* HapticService.swift */,
+				3A1150742FB9F36C00A289D9 /* PermissionManager.swift */,
+				3A1150752FB9F36C00A289D9 /* PhotoLibraryService.swift */,
+				3A1150762FB9F36C00A289D9 /* PurchaseService.swift */,
+				3A1150772FB9F36C00A289D9 /* RecordingService.swift */,
+				3A1150782FB9F36C00A289D9 /* VideoExportService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		3A11507C2FB9F36C00A289D9 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				3A11507A2FB9F36C00A289D9 /* SettingsStore.swift */,
+				3A11507B2FB9F36C00A289D9 /* TrialManager.swift */,
+				3A1150B12FBA100000A289D9 /* RecordingHistoryStore.swift */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		3A11507F2FB9F36C00A289D9 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				3A11507D2FB9F36C00A289D9 /* OnboardingView.swift */,
+				3A11507E2FB9F36C00A289D9 /* OnboardingViewModel.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		3A1150842FB9F36C00A289D9 /* Paywall */ = {
+			isa = PBXGroup;
+			children = (
+				3A1150832FB9F36C00A289D9 /* PaywallView.swift */,
+			);
+			path = Paywall;
+			sourceTree = "<group>";
+		};
+		3A1150882FB9F36C00A289D9 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				3A11507F2FB9F36C00A289D9 /* Onboarding */,
+				3A1150842FB9F36C00A289D9 /* Paywall */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		3A11508B2FB9F36C00A289D9 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				3A1150892FB9F36C00A289D9 /* Errors.swift */,
+				3A11508A2FB9F36C00A289D9 /* TempFileManager.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		3AA447302FBA04100055CD82 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3AA447312FBA04100055CD82 /* ReplayKit.framework */,
+				3AA4473D2FBA04100055CD82 /* UIKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +254,12 @@
 				3A1150242FB9F2D000A289D9 /* Sources */,
 				3A1150252FB9F2D000A289D9 /* Frameworks */,
 				3A1150262FB9F2D000A289D9 /* Resources */,
+				3AA447492FBA04100055CD82 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				3AA447472FBA04100055CD82 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				3A11502A2FB9F2D000A289D9 /* FlashCatch */,
@@ -69,6 +270,28 @@
 			productName = FlashCatch;
 			productReference = 3A1150282FB9F2D000A289D9 /* FlashCatch.app */;
 			productType = "com.apple.product-type.application";
+		};
+		3AA4472E2FBA04100055CD82 /* FlashCatchBroadcast */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3AA4474F2FBA04100055CD82 /* Build configuration list for PBXNativeTarget "FlashCatchBroadcast" */;
+			buildPhases = (
+				3AA4472B2FBA04100055CD82 /* Sources */,
+				3AA4472C2FBA04100055CD82 /* Frameworks */,
+				3AA4472D2FBA04100055CD82 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3AA447332FBA04100055CD82 /* FlashCatchBroadcast */,
+			);
+			name = FlashCatchBroadcast;
+			packageProductDependencies = (
+			);
+			productName = FlashCatchBroadcast;
+			productReference = 3AA4472F2FBA04100055CD82 /* FlashCatchBroadcast.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +304,9 @@
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					3A1150272FB9F2D000A289D9 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					3AA4472E2FBA04100055CD82 = {
 						CreatedOnToolsVersion = 26.3;
 					};
 				};
@@ -100,12 +326,21 @@
 			projectRoot = "";
 			targets = (
 				3A1150272FB9F2D000A289D9 /* FlashCatch */,
+				3AA4472E2FBA04100055CD82 /* FlashCatchBroadcast */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3A1150262FB9F2D000A289D9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A1150A52FB9F55B00A289D9 /* Products.storekit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3AA4472D2FBA04100055CD82 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -119,10 +354,43 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A11508D2FB9F36C00A289D9 /* AppCoordinator.swift in Sources */,
+				3A11508E2FB9F36C00A289D9 /* SettingsStore.swift in Sources */,
+				3A1150B02FBA100000A289D9 /* RecordingHistoryStore.swift in Sources */,
+				3A1150902FB9F36C00A289D9 /* RecordingService.swift in Sources */,
+				3A1150922FB9F36C00A289D9 /* TrialManager.swift in Sources */,
+				3A1150932FB9F36C00A289D9 /* PaywallView.swift in Sources */,
+				3A1150942FB9F36C00A289D9 /* PurchaseService.swift in Sources */,
+				3A1150952FB9F36C00A289D9 /* HapticService.swift in Sources */,
+				3A1150962FB9F36C00A289D9 /* OnboardingViewModel.swift in Sources */,
+				3A1150972FB9F36C00A289D9 /* OnboardingView.swift in Sources */,
+				3A1150982FB9F36C00A289D9 /* ClipBufferService.swift in Sources */,
+				3A1150992FB9F36C00A289D9 /* TempFileManager.swift in Sources */,
+				3A11509A2FB9F36C00A289D9 /* PermissionManager.swift in Sources */,
+				3A11509B2FB9F36C00A289D9 /* Errors.swift in Sources */,
+				3A11509C2FB9F36C00A289D9 /* FlashCatchApp.swift in Sources */,
+				3A11509D2FB9F36C00A289D9 /* PhotoLibraryService.swift in Sources */,
+				3A11509F2FB9F36C00A289D9 /* ContentView.swift in Sources */,
+				3A1150A02FB9F36C00A289D9 /* VideoExportService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3AA4472B2FBA04100055CD82 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3AA447472FBA04100055CD82 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3AA4472E2FBA04100055CD82 /* FlashCatchBroadcast */;
+			targetProxy = 3AA447462FBA04100055CD82 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3A1150312FB9F2D100A289D9 /* Debug */ = {
@@ -178,7 +446,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -236,7 +504,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -251,6 +519,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FlashCatch/FlashCatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K3FTNLUYZJ;
@@ -283,6 +552,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FlashCatch/FlashCatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K3FTNLUYZJ;
@@ -310,6 +580,66 @@
 			};
 			name = Release;
 		};
+		3AA4474A2FBA04100055CD82 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FlashCatchBroadcast/FlashCatchBroadcastDebug.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K3FTNLUYZJ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FlashCatchBroadcast/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "瞬拾录屏";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.flashcatch.FlashCatch.FlashCatchBroadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3AA4474B2FBA04100055CD82 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FlashCatchBroadcast/FlashCatchBroadcast.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K3FTNLUYZJ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FlashCatchBroadcast/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "瞬拾录屏";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.flashcatch.FlashCatch.FlashCatchBroadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -327,6 +657,15 @@
 			buildConfigurations = (
 				3A1150342FB9F2D100A289D9 /* Debug */,
 				3A1150352FB9F2D100A289D9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3AA4474F2FBA04100055CD82 /* Build configuration list for PBXNativeTarget "FlashCatchBroadcast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3AA4474A2FBA04100055CD82 /* Debug */,
+				3AA4474B2FBA04100055CD82 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
