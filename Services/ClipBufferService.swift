@@ -23,8 +23,11 @@ final class ClipBufferService: ObservableObject {
     }
 
     @Published private(set) var state: State = .idle
+    @Published private(set) var latestClipURL: URL?
 
     private let recorder = RPScreenRecorder.shared()
+    private var periodicExportTask: Task<Void, Never>?
+    private var exportDuration: TimeInterval = 20
 
     var isAvailable: Bool {
         recorder.isAvailable
@@ -38,7 +41,7 @@ final class ClipBufferService: ObservableObject {
         recorder.isRecording
     }
 
-    func startBuffering() async throws {
+    func startBuffering(duration: TimeInterval = 20) async throws {
         guard recorder.isAvailable else {
             state = .error(ClipBufferError.recorderUnavailable.localizedDescription)
             throw ClipBufferError.recorderUnavailable
@@ -50,16 +53,21 @@ final class ClipBufferService: ObservableObject {
             return
         }
 
+        exportDuration = duration
         try await recorder.startClipBuffering()
         state = .buffering
+        startPeriodicExport()
     }
 
     func stopBuffering() async throws {
         guard state == .buffering || state == .exporting else { return }
-        do {
-            try await recorder.stopClipBuffering()
-        } catch {
-            // 系统可能已经停止了缓冲，忽略错误
+        stopPeriodicExport()
+        if recorder.isRecording {
+            do {
+                try await recorder.stopClipBuffering()
+            } catch {
+                // 系统可能已经停止了缓冲，忽略错误
+            }
         }
         state = .idle
     }
@@ -77,26 +85,73 @@ final class ClipBufferService: ObservableObject {
             state = .buffering
             return tempURL
         } catch {
-            state = .error(error.localizedDescription)
+            state = .buffering
             throw ClipBufferError.exportFailed(underlying: error)
         }
     }
 
     func restartBuffering() async {
-        // 确保 recorder 空闲
         if recorder.isRecording {
             return
         }
         do {
             if state == .buffering || state == .exporting {
+                stopPeriodicExport()
                 try await recorder.stopClipBuffering()
                 state = .idle
             }
             try await Task.sleep(nanoseconds: 300_000_000)
             try await recorder.startClipBuffering()
             state = .buffering
+            startPeriodicExport()
         } catch {
             state = .error(error.localizedDescription)
         }
+    }
+
+    // MARK: - Periodic Export
+
+    private func startPeriodicExport() {
+        stopPeriodicExport()
+        periodicExportTask = Task { [weak self] in
+            // 等待缓冲积累一段时间再开始导出
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+
+            while !Task.isCancelled {
+                guard let self, self.state == .buffering else { break }
+
+                let tempURL = TempFileManager.shared.createTempURL(prefix: "preclip_")
+                do {
+                    try await self.recorder.exportClip(to: tempURL, duration: self.exportDuration)
+                    let oldURL = self.latestClipURL
+                    self.latestClipURL = tempURL
+                    if let old = oldURL {
+                        TempFileManager.shared.cleanup(urls: [old])
+                    }
+                } catch {
+                    try? FileManager.default.removeItem(at: tempURL)
+                }
+
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
+            }
+        }
+    }
+
+    private func stopPeriodicExport() {
+        periodicExportTask?.cancel()
+        periodicExportTask = nil
+    }
+
+    func consumeLatestClip() -> URL? {
+        let url = latestClipURL
+        latestClipURL = nil
+        return url
+    }
+
+    func clearLatestClip() {
+        if let url = latestClipURL {
+            TempFileManager.shared.cleanup(urls: [url])
+        }
+        latestClipURL = nil
     }
 }

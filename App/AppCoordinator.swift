@@ -1,10 +1,19 @@
 import Foundation
 import UIKit
 import Combine
+import ReplayKit
+import Photos
 
 private let appGroupID = "group.com.flashcatch.shared"
 private let recordingStateKey = "broadcastRecording"
 private let videoFilenameKey = "lastRecordedVideo"
+private let bufferFilenameKey = "lastBufferVideo"
+private let bufferDurationKey = "bufferDuration"
+private let finishedWritingKey = "broadcastFinishedWriting"
+private let startRecordingSignalKey = "startRecordingSignal"
+private let stopRecordingSignalKey = "stopRecordingSignal"
+private let commandNotificationName = "com.flashcatch.app.command"
+private let stateChangedNotificationName = "com.flashcatch.broadcast.stateChanged"
 
 @MainActor
 final class AppCoordinator: ObservableObject {
@@ -19,12 +28,12 @@ final class AppCoordinator: ObservableObject {
     let historyStore = RecordingHistoryStore()
 
     private var cancellables = Set<AnyCancellable>()
-    private var bufferClipURL: URL?
-    private var wasPreRecording = false
+    private let appGroupAvailable: Bool
 
-    @Published var isPreRecording = false
-    @Published var isRecording = false
-    @Published var isProcessing = false
+    /// 状态：idle → broadcasting(缓冲中) → recording(正式录制) → processing → idle
+    @Published var isPreRecording = false   // broadcast 已启动，缓冲中
+    @Published var isRecording = false      // 正式录制中
+    @Published var isProcessing = false     // 拼接保存中
     @Published var showToast = false
     @Published var toastMessage = ""
     @Published var showPaywall = false
@@ -34,6 +43,7 @@ final class AppCoordinator: ObservableObject {
         let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
         debugLog.append("[\(timestamp)] \(message)")
         if debugLog.count > 50 { debugLog.removeFirst() }
+        print("[FlashCatch] \(message)")
     }
 
     var isAppUsable: Bool {
@@ -41,8 +51,13 @@ final class AppCoordinator: ObservableObject {
     }
 
     init() {
+        appGroupAvailable = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) != nil
         setupNotifications()
-        observeBroadcastState()
+        if appGroupAvailable {
+            observeBroadcastState()
+            syncBufferDurationToAppGroup()
+        }
+        logError("init: appGroupAvailable=\(appGroupAvailable)")
     }
 
     // MARK: - Lifecycle
@@ -50,11 +65,11 @@ final class AppCoordinator: ObservableObject {
     func onAppear() {
         permissionManager.checkAllPermissions()
         trialManager.updateTrialStatus()
-        logError("onAppear: onboarding=\(settings.onboardingCompleted), usable=\(isAppUsable), available=\(clipBufferService.isAvailable)")
+        logError("onAppear: onboarding=\(settings.onboardingCompleted), usable=\(isAppUsable), appGroup=\(appGroupAvailable)")
 
         if settings.onboardingCompleted {
             if isAppUsable {
-                startBufferingIfNeeded()
+                checkBroadcastState()
             } else {
                 showPaywall = true
             }
@@ -63,17 +78,17 @@ final class AppCoordinator: ObservableObject {
 
     func onOnboardingComplete() {
         settings.onboardingCompleted = true
-        startBufferingIfNeeded()
+        logError("onboarding 完成")
     }
 
     func onPurchaseComplete() {
         showPaywall = false
-        startBufferingIfNeeded()
     }
 
-    // MARK: - 预录制控制
+    // MARK: - 预录制控制（启动/停止 Broadcast）
 
     func togglePreRecording() {
+        logError("togglePreRecording: isPreRecording=\(isPreRecording)")
         if isPreRecording {
             stopPreRecording()
         } else {
@@ -82,21 +97,99 @@ final class AppCoordinator: ObservableObject {
     }
 
     func startPreRecording() {
-        guard !isPreRecording else { return }
+        guard !isPreRecording, !isRecording else { return }
         if !isAppUsable {
             showPaywall = true
             return
         }
-        logError("开启预录制")
-        startBufferingIfNeeded()
+        guard appGroupAvailable else {
+            logError("App Group 不可用，无法使用 Broadcast Extension")
+            showToastMessage("需要开发者账号才能使用跨App录制")
+            return
+        }
+        logError("开启预录制: 同步设置并等待用户确认 broadcast")
+        syncBufferDurationToAppGroup()
+        // UI 中的 BroadcastPickerView 会触发系统 broadcast picker
+        // broadcast 启动后 Extension 会通知我们
     }
 
     func stopPreRecording() {
-        guard isPreRecording else { return }
-        logError("关闭预录制")
+        logError("关闭预录制: 请手动停止 broadcast")
+        // 用户需要通过系统 UI 停止 broadcast
+        // 或者我们可以强制结束，但 ReplayKit 不提供直接 API
+        showToastMessage("请从控制中心停止录屏")
+    }
+
+    // MARK: - 录制控制（通过 App Group 通知 Extension）
+
+    func startRecording() {
+        guard isPreRecording, !isRecording, !isProcessing else {
+            logError("startRecording: 条件不满足 pre=\(isPreRecording) rec=\(isRecording) proc=\(isProcessing)")
+            return
+        }
+        guard appGroupAvailable else { return }
+
+        logError("=== 发送开始录制信号 ===")
+
+        if let defaults = UserDefaults(suiteName: appGroupID) {
+            defaults.set(true, forKey: startRecordingSignalKey)
+            defaults.synchronize()
+        }
+
+        CFNotificationCenterPostNotification(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            CFNotificationName(commandNotificationName as CFString),
+            nil, nil, true
+        )
+
+        isRecording = true
+        isPreRecording = false
+        logError("录制信号已发送, 等待 Extension 处理")
+
+        if settings.hapticEnabled {
+            HapticService.shared.playTap()
+        }
+    }
+
+    func stopRecording() {
+        guard isRecording else { return }
+        guard appGroupAvailable else { return }
+
+        logError("=== 发送停止录制信号 ===")
+
+        if let defaults = UserDefaults(suiteName: appGroupID) {
+            defaults.set(true, forKey: stopRecordingSignalKey)
+            defaults.synchronize()
+        }
+
+        CFNotificationCenterPostNotification(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            CFNotificationName(commandNotificationName as CFString),
+            nil, nil, true
+        )
+
+        isRecording = false
+        isProcessing = true
+        logError("停止信号已发送, 等待 Extension 完成写入")
+
         Task {
-            try? await clipBufferService.stopBuffering()
-            isPreRecording = false
+            await waitForExtensionFinishWriting()
+            await performMergeAndSave()
+        }
+    }
+
+    // MARK: - 录制管理
+
+    func deleteRecording(_ record: RecordingRecord) {
+        Task {
+            do {
+                try await photoLibraryService.deleteAsset(assetIdentifier: record.assetIdentifier)
+                logError("删除视频成功")
+            } catch {
+                logError("删除视频失败: \(error)")
+            }
+            historyStore.remove(id: record.id)
+            showToastMessage("已删除")
         }
     }
 
@@ -116,116 +209,130 @@ final class AppCoordinator: ObservableObject {
                     coordinator.handleBroadcastStateChanged()
                 }
             },
-            "com.flashcatch.broadcast.stateChanged" as CFString,
+            stateChangedNotificationName as CFString,
             nil,
             .deliverImmediately
         )
     }
 
     private func handleBroadcastStateChanged() {
-        guard let defaults = UserDefaults(suiteName: appGroupID) else { return }
-        let nowRecording = defaults.bool(forKey: recordingStateKey)
+        guard appGroupAvailable, let defaults = UserDefaults(suiteName: appGroupID) else { return }
+        defaults.synchronize()
+        let broadcasting = defaults.bool(forKey: recordingStateKey)
+        let finished = defaults.bool(forKey: finishedWritingKey)
 
-        if !isRecording && nowRecording {
-            handleBroadcastStarted()
-        } else if isRecording && !nowRecording {
-            handleBroadcastStopped()
-        }
-    }
+        logError("broadcast 状态变化: broadcasting=\(broadcasting), finished=\(finished)")
 
-    private func handleBroadcastStarted() {
-        logError("Broadcast 录制已启动")
-        wasPreRecording = isPreRecording
-        isRecording = true
-
-        if isPreRecording {
-            Task {
-                do {
-                    logError("导出缓冲片段...")
-                    let clipURL = try await clipBufferService.exportClip(
-                        duration: settings.bufferTimeInterval
-                    )
-                    bufferClipURL = clipURL
-                    logError("缓冲导出成功")
-
-                    try await clipBufferService.stopBuffering()
-                    isPreRecording = false
-                } catch {
-                    logError("导出缓冲失败: \(error)")
-                    bufferClipURL = nil
-                }
+        if broadcasting && !isPreRecording && !isRecording {
+            isPreRecording = true
+            logError("Broadcast 已启动，进入预录制缓冲状态")
+        } else if !broadcasting && (isPreRecording || isRecording) {
+            if finished && isProcessing {
+                logError("Extension 写入完成")
+            } else if !isProcessing {
+                isPreRecording = false
+                isRecording = false
+                logError("Broadcast 已结束")
             }
-        } else {
-            bufferClipURL = nil
-        }
-
-        if settings.hapticEnabled {
-            HapticService.shared.playTap()
         }
     }
 
-    private func handleBroadcastStopped() {
-        logError("Broadcast 录制已停止")
-        isRecording = false
-        isProcessing = true
-
-        Task {
-            // 短暂等待 Extension 完成写入
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
-            await performMergeAndSave()
+    private func checkBroadcastState() {
+        guard appGroupAvailable, let defaults = UserDefaults(suiteName: appGroupID) else { return }
+        defaults.synchronize()
+        let broadcasting = defaults.bool(forKey: recordingStateKey)
+        if broadcasting {
+            isPreRecording = true
+            logError("检测到 broadcast 正在运行")
         }
     }
 
-    // MARK: - Private — Merge & Save
+    // MARK: - Wait for Extension
+
+    private func waitForExtensionFinishWriting() async {
+        guard appGroupAvailable, let defaults = UserDefaults(suiteName: appGroupID) else { return }
+
+        for i in 0..<30 {
+            defaults.synchronize()
+            if defaults.bool(forKey: finishedWritingKey) {
+                logError("Extension 写入完成信号 (等待了 \(i * 500)ms)")
+                return
+            }
+            try? await Task.sleep(nanoseconds: 500_000_000)
+        }
+        logError("等待 Extension 写入超时 (15s)")
+    }
+
+    // MARK: - Merge & Save
 
     private func performMergeAndSave() async {
         var tempFiles: [URL] = []
 
         guard let defaults = UserDefaults(suiteName: appGroupID),
-              let filename = defaults.string(forKey: videoFilenameKey),
               let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
         else {
-            logError("无法获取录制文件信息")
+            logError("无法访问 App Group")
             isProcessing = false
-            restorePreRecordingIfNeeded()
             return
         }
 
-        let recordingURL = container.appendingPathComponent(filename)
+        defaults.synchronize()
+        let recordingFilename = defaults.string(forKey: videoFilenameKey)
+        let bufferFilename = defaults.string(forKey: bufferFilenameKey)
 
-        guard FileManager.default.fileExists(atPath: recordingURL.path) else {
-            logError("录制文件不存在: \(filename)")
+        logError("录制文件: \(recordingFilename ?? "nil"), 缓冲文件: \(bufferFilename ?? "nil")")
+
+        let recordingURL: URL? = {
+            guard let name = recordingFilename else { return nil }
+            let url = container.appendingPathComponent(name)
+            return FileManager.default.fileExists(atPath: url.path) ? url : nil
+        }()
+
+        let bufferURL: URL? = {
+            guard let name = bufferFilename else { return nil }
+            let url = container.appendingPathComponent(name)
+            return FileManager.default.fileExists(atPath: url.path) ? url : nil
+        }()
+
+        guard recordingURL != nil || bufferURL != nil else {
+            logError("录制文件和缓冲文件都不存在")
             isProcessing = false
-            restorePreRecordingIfNeeded()
             return
         }
-
-        logError("录制文件: \(filename)")
-        tempFiles.append(recordingURL)
 
         do {
-            var finalURL = recordingURL
+            var finalURL: URL
 
-            if let bufferURL = bufferClipURL {
-                logError("拼接: 缓冲片段 + 录制视频...")
-                tempFiles.append(bufferURL)
+            if let bufURL = bufferURL, let recURL = recordingURL {
+                logError("拼接: 缓冲 + 录制...")
+                tempFiles.append(bufURL)
+                tempFiles.append(recURL)
                 let mergedURL = try await videoExportService.mergeClips(
-                    bufferClip: bufferURL,
-                    continuationClip: recordingURL
+                    bufferClip: bufURL,
+                    continuationClip: recURL
                 )
                 tempFiles.append(mergedURL)
                 finalURL = mergedURL
                 logError("拼接完成")
+            } else if let bufURL = bufferURL {
+                finalURL = bufURL
+                tempFiles.append(bufURL)
+                logError("仅缓冲文件")
+            } else {
+                finalURL = recordingURL!
+                tempFiles.append(recordingURL!)
+                logError("仅录制文件")
             }
 
             let assetId = try await photoLibraryService.saveVideoToAlbum(url: finalURL)
-            let duration = bufferClipURL != nil ? settings.bufferTimeInterval : 0
-            historyStore.add(assetIdentifier: assetId, duration: duration)
+            let realDuration = photoLibraryService.fetchDuration(assetIdentifier: assetId)
+            historyStore.add(assetIdentifier: assetId, duration: realDuration)
+            logError("保存成功! duration=\(realDuration)s")
 
             if settings.hapticEnabled {
                 HapticService.shared.playSuccess()
             }
-            showToastMessage("录制已保存到相册")
+            showToastMessage("已保存（含预录制 \(settings.bufferDuration)s）")
         } catch {
             if settings.hapticEnabled {
                 HapticService.shared.playError()
@@ -235,86 +342,46 @@ final class AppCoordinator: ObservableObject {
         }
 
         TempFileManager.shared.cleanup(urls: tempFiles)
-        bufferClipURL = nil
         isProcessing = false
-        restorePreRecordingIfNeeded()
-    }
-
-    private func restorePreRecordingIfNeeded() {
-        if wasPreRecording {
-            Task {
-                await clipBufferService.restartBuffering()
-                isPreRecording = clipBufferService.isBuffering
-            }
-        }
-        wasPreRecording = false
-    }
-
-    // MARK: - Private — Buffering
-
-    private func startBufferingIfNeeded() {
-        guard isAppUsable else {
-            logError("startBuffering 跳过: app不可用")
-            return
-        }
-        guard !isRecording else {
-            logError("startBuffering 跳过: 正在录制")
-            return
-        }
-        guard !clipBufferService.isBuffering else {
-            logError("startBuffering 跳过: 已在缓冲")
-            isPreRecording = true
-            return
-        }
-        logError("尝试启动缓冲...")
-        Task {
-            do {
-                try await clipBufferService.startBuffering()
-                isPreRecording = true
-                logError("缓冲启动成功")
-            } catch {
-                logError("缓冲启动失败: \(error)")
-                showToastMessage("缓冲启动失败，正在重试...")
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-                do {
-                    try await clipBufferService.startBuffering()
-                    isPreRecording = true
-                    logError("缓冲重试成功")
-                } catch {
-                    logError("缓冲重试失败: \(error)")
-                }
-            }
-        }
     }
 
     // MARK: - Helpers
+
+    private func syncBufferDurationToAppGroup() {
+        guard appGroupAvailable, let defaults = UserDefaults(suiteName: appGroupID) else { return }
+        defaults.set(settings.bufferDuration, forKey: bufferDurationKey)
+        defaults.synchronize()
+    }
 
     private func showToastMessage(_ message: String) {
         toastMessage = message
         showToast = true
     }
 
-    // MARK: - App Lifecycle Notifications
+    // MARK: - App Lifecycle
 
     private func setupNotifications() {
         NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
             .sink { [weak self] _ in
-                Task { @MainActor in
-                    self?.handleEnterForeground()
-                }
+                Task { @MainActor in self?.handleEnterForeground() }
             }
             .store(in: &cancellables)
 
         NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)
             .sink { [weak self] _ in
-                Task { @MainActor in
-                    self?.handleMemoryWarning()
-                }
+                Task { @MainActor in self?.logError("内存警告") }
+            }
+            .store(in: &cancellables)
+
+        settings.$bufferDuration
+            .sink { [weak self] _ in
+                self?.syncBufferDurationToAppGroup()
             }
             .store(in: &cancellables)
     }
 
     private func handleEnterForeground() {
+        logError("进入前台")
         trialManager.updateTrialStatus()
 
         if !isAppUsable {
@@ -322,18 +389,6 @@ final class AppCoordinator: ObservableObject {
             return
         }
 
-        if settings.onboardingCompleted && !clipBufferService.isBuffering
-            && !isRecording && !isProcessing {
-            startBufferingIfNeeded()
-        }
-    }
-
-    private func handleMemoryWarning() {
-        if settings.bufferDuration > 15 {
-            settings.bufferDuration = 15
-            if !isRecording {
-                Task { await clipBufferService.restartBuffering() }
-            }
-        }
+        checkBroadcastState()
     }
 }

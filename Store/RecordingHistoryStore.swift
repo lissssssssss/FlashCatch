@@ -5,7 +5,7 @@ struct RecordingRecord: Codable, Identifiable {
     let id: UUID
     let assetIdentifier: String
     let date: Date
-    let duration: TimeInterval
+    var duration: TimeInterval
 }
 
 final class RecordingHistoryStore: ObservableObject {
@@ -29,9 +29,14 @@ final class RecordingHistoryStore: ObservableObject {
         save()
     }
 
-    func remove(at index: Int) {
-        guard records.indices.contains(index) else { return }
-        records.remove(at: index)
+    func remove(id: UUID) {
+        records.removeAll { $0.id == id }
+        save()
+    }
+
+    func updateDuration(id: UUID, duration: TimeInterval) {
+        guard let index = records.firstIndex(where: { $0.id == id }) else { return }
+        records[index].duration = duration
         save()
     }
 

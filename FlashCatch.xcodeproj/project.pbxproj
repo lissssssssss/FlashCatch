@@ -25,6 +25,8 @@
 		3A11509D2FB9F36C00A289D9 /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150752FB9F36C00A289D9 /* PhotoLibraryService.swift */; };
 		3A11509F2FB9F36C00A289D9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A11506D2FB9F36C00A289D9 /* ContentView.swift */; };
 		3A1150A02FB9F36C00A289D9 /* VideoExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150782FB9F36C00A289D9 /* VideoExportService.swift */; };
+		3A1150C02FBB000100A289D9 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150C12FBB000100A289D9 /* VideoPlayerView.swift */; };
+		3A1150C22FBB000100A289D9 /* HistoryRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1150C32FBB000100A289D9 /* HistoryRowView.swift */; };
 		3A1150A52FB9F55B00A289D9 /* Products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 3A1150A42FB9F55B00A289D9 /* Products.storekit */; };
 		3AA447322FBA04100055CD82 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AA447312FBA04100055CD82 /* ReplayKit.framework */; };
 		3AA447482FBA04100055CD82 /* FlashCatchBroadcast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3AA4472F2FBA04100055CD82 /* FlashCatchBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -75,6 +77,8 @@
 		3A1150832FB9F36C00A289D9 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		3A1150892FB9F36C00A289D9 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		3A11508A2FB9F36C00A289D9 /* TempFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempFileManager.swift; sourceTree = "<group>"; };
+		3A1150C12FBB000100A289D9 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
+		3A1150C32FBB000100A289D9 /* HistoryRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRowView.swift; sourceTree = "<group>"; };
 		3A1150A42FB9F55B00A289D9 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
 		3AA4472F2FBA04100055CD82 /* FlashCatchBroadcast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FlashCatchBroadcast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AA447312FBA04100055CD82 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
@@ -222,8 +226,18 @@
 			children = (
 				3A11507F2FB9F36C00A289D9 /* Onboarding */,
 				3A1150842FB9F36C00A289D9 /* Paywall */,
+				3A1150C42FBB000100A289D9 /* VideoPlayer */,
 			);
 			path = UI;
+			sourceTree = "<group>";
+		};
+		3A1150C42FBB000100A289D9 /* VideoPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				3A1150C12FBB000100A289D9 /* VideoPlayerView.swift */,
+				3A1150C32FBB000100A289D9 /* HistoryRowView.swift */,
+			);
+			path = VideoPlayer;
 			sourceTree = "<group>";
 		};
 		3A11508B2FB9F36C00A289D9 /* Utils */ = {
@@ -372,6 +386,8 @@
 				3A11509D2FB9F36C00A289D9 /* PhotoLibraryService.swift in Sources */,
 				3A11509F2FB9F36C00A289D9 /* ContentView.swift in Sources */,
 				3A1150A02FB9F36C00A289D9 /* VideoExportService.swift in Sources */,
+				3A1150C02FBB000100A289D9 /* VideoPlayerView.swift in Sources */,
+				3A1150C22FBB000100A289D9 /* HistoryRowView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -525,6 +541,10 @@
 				DEVELOPMENT_TEAM = K3FTNLUYZJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Resources/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "瞬拾需要访问相册以展示和管理您的录制视频";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "瞬拾需要将高光视频保存到您的相册";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "瞬拾需要麦克风权限来录制音频";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -558,6 +578,10 @@
 				DEVELOPMENT_TEAM = K3FTNLUYZJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Resources/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "瞬拾需要访问相册以展示和管理您的录制视频";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "瞬拾需要将高光视频保存到您的相册";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "瞬拾需要麦克风权限来录制音频";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

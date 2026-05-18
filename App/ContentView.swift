@@ -1,9 +1,11 @@
 import SwiftUI
 import UIKit
+import ReplayKit
 
 struct ContentView: View {
     @EnvironmentObject var coordinator: AppCoordinator
     @EnvironmentObject var settings: SettingsStore
+    @State private var selectedRecord: RecordingRecord?
 
     var body: some View {
         Group {
@@ -20,6 +22,13 @@ struct ContentView: View {
         }
         .onAppear {
             coordinator.onAppear()
+        }
+        .overlay(alignment: .topLeading) {
+            if coordinator.isPreRecording || coordinator.isRecording {
+                recordingFloatingButton
+                    .padding(.top, 50)
+                    .padding(.leading, 8)
+            }
         }
         .overlay(alignment: .bottom) {
             if coordinator.showToast {
@@ -38,6 +47,42 @@ struct ContentView: View {
                     coordinator.onPurchaseComplete()
                 }
             )
+        }
+    }
+
+    // MARK: - 左上角浮动录制按钮
+
+    private var recordingFloatingButton: some View {
+        Group {
+            if coordinator.isRecording {
+                // 录制中：透明点击区域（不会被录制捕获）
+                Color.clear
+                    .frame(width: 70, height: 44)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        coordinator.stopRecording()
+                    }
+            } else {
+                // 未录制：显示可见按钮
+                Button(action: {
+                    coordinator.startRecording()
+                }) {
+                    HStack(spacing: 5) {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 9, height: 9)
+
+                        Text("录制")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(Color.black.opacity(0.75))
+                    .clipShape(Capsule())
+                }
+                .disabled(coordinator.isProcessing)
+            }
         }
     }
 
@@ -77,7 +122,7 @@ struct ContentView: View {
                 Text("正在录制")
                     .font(.headline)
                     .foregroundColor(.red)
-                Text("点击左上角红条停止")
+                Text("点击左上角停止")
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else if coordinator.isProcessing {
@@ -88,7 +133,7 @@ struct ContentView: View {
                 Text("预录制已开启")
                     .font(.headline)
                     .foregroundColor(.green)
-                Text("正在缓冲最近 \(settings.bufferDuration) 秒")
+                Text("正在缓冲最近 \(settings.bufferDuration) 秒（可切换App）")
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {
@@ -114,22 +159,29 @@ struct ContentView: View {
                         .foregroundColor(.secondary)
                 }
             } else if coordinator.isRecording {
-                Text("录制中，点击左上角红条停止")
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 8, height: 8)
+                    Text("录制中，点击左上角停止")
+                        .font(.subheadline)
+                        .foregroundColor(.red)
+                }
+            } else if coordinator.isPreRecording {
+                Text("预录制缓冲中，可切换到其他 App")
                     .font(.subheadline)
-                    .foregroundColor(.red)
+                    .foregroundColor(.green)
+                Text("点击左上角按钮开始录制")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             } else {
-                Button(action: { coordinator.togglePreRecording() }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: coordinator.isPreRecording ? "stop.circle.fill" : "play.circle.fill")
-                            .font(.title2)
-                        Text(coordinator.isPreRecording ? "关闭预录制" : "开启预录制")
-                            .font(.headline)
-                    }
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(coordinator.isPreRecording ? Color.orange : Color.green)
-                    .cornerRadius(12)
+                VStack(spacing: 8) {
+                    Text("点击下方按钮开启预录制")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    BroadcastPickerRepresentable()
+                        .frame(width: 240, height: 50)
                 }
                 .padding(.horizontal, 32)
             }
@@ -194,57 +246,28 @@ struct ContentView: View {
 
     private var historySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("录制记录")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 32)
-
-            ForEach(coordinator.historyStore.records) { record in
-                historyRow(record)
-            }
-        }
-    }
-
-    private func historyRow(_ record: RecordingRecord) -> some View {
-        HStack(spacing: 12) {
-            RoundedRectangle(cornerRadius: 6)
-                .fill(Color(.systemGray5))
-                .frame(width: 48, height: 48)
-                .overlay(
-                    Image(systemName: "play.circle.fill")
-                        .font(.title3)
-                        .foregroundColor(.red)
-                )
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(formatRecordDate(record.date))
+            HStack {
+                Text("录制记录")
                     .font(.subheadline)
-                Text("时长 \(formatDuration(record.duration))")
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text("\(coordinator.historyStore.records.count) 个视频")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
+            .padding(.horizontal, 32)
 
-            Spacer()
-
-            Button(action: {
-                openInPhotos(assetIdentifier: record.assetIdentifier)
-            }) {
-                Image(systemName: "arrow.up.forward.square")
-                    .foregroundColor(.secondary)
+            ForEach(coordinator.historyStore.records) { record in
+                HistoryRowView(record: record) {
+                    selectedRecord = record
+                } onDelete: {
+                    coordinator.deleteRecording(record)
+                }
             }
         }
-        .padding(.horizontal, 32)
-    }
-
-    private func formatRecordDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM/dd HH:mm"
-        return formatter.string(from: date)
-    }
-
-    private func openInPhotos(assetIdentifier: String) {
-        guard let url = URL(string: "photos-redirect://") else { return }
-        UIApplication.shared.open(url)
+        .fullScreenCover(item: $selectedRecord) { record in
+            VideoPlayerView(assetIdentifier: record.assetIdentifier)
+        }
     }
 
     // MARK: - 设置区
@@ -359,23 +382,15 @@ struct ContentView: View {
     private var statusColor: Color {
         if coordinator.isRecording { return .red }
         if coordinator.isProcessing { return .orange }
-        switch coordinator.clipBufferService.state {
-        case .buffering: return .green
-        case .exporting: return .orange
-        case .error: return .red
-        case .idle: return .gray
-        }
+        if coordinator.isPreRecording { return .green }
+        return .gray
     }
 
     private var statusIcon: String {
         if coordinator.isRecording { return "record.circle.fill" }
         if coordinator.isProcessing { return "arrow.down.circle" }
-        switch coordinator.clipBufferService.state {
-        case .buffering: return "record.circle"
-        case .exporting: return "arrow.down.circle"
-        case .error: return "exclamationmark.triangle"
-        case .idle: return "pause.circle"
-        }
+        if coordinator.isPreRecording { return "record.circle" }
+        return "pause.circle"
     }
 
     // MARK: - Debug Overlay (临时，最后删掉)
@@ -452,10 +467,36 @@ struct ContentView: View {
                 }
             }
     }
+}
 
-    private func formatDuration(_ duration: TimeInterval) -> String {
-        let minutes = Int(duration) / 60
-        let seconds = Int(duration) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+// MARK: - RPSystemBroadcastPickerView Wrapper
+
+struct BroadcastPickerRepresentable: UIViewRepresentable {
+
+    func makeUIView(context: Context) -> RPSystemBroadcastPickerView {
+        let picker = RPSystemBroadcastPickerView(frame: CGRect(x: 0, y: 0, width: 240, height: 50))
+        picker.preferredExtension = "com.flashcatch.FlashCatch.FlashCatchBroadcast"
+        picker.showsMicrophoneButton = false
+
+        if let button = picker.subviews.first(where: { $0 is UIButton }) as? UIButton {
+            button.setTitle("开启预录制", for: .normal)
+            button.setTitleColor(.white, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+            button.backgroundColor = UIColor.systemGreen
+            button.layer.cornerRadius = 12
+            button.setImage(nil, for: .normal)
+
+            button.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                button.leadingAnchor.constraint(equalTo: picker.leadingAnchor),
+                button.trailingAnchor.constraint(equalTo: picker.trailingAnchor),
+                button.topAnchor.constraint(equalTo: picker.topAnchor),
+                button.bottomAnchor.constraint(equalTo: picker.bottomAnchor),
+            ])
+        }
+
+        return picker
     }
+
+    func updateUIView(_ uiView: RPSystemBroadcastPickerView, context: Context) {}
 }
